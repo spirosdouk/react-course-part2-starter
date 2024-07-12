@@ -1,5 +1,11 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+useQuery({
+  queryKey: ["todos", { completed: true }],
+  queryFn: () => axios.get("https://jsonplaceholder.typicode.com/posts"),
+});
 
 interface Post {
   id: number;
@@ -10,11 +16,11 @@ interface Post {
 
 const PostList = () => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     axios
-      .get('https://jsonplaceholder.typicode.com/posts')
+      .get("https://jsonplaceholder.typicode.com/posts")
       .then((res) => setPosts(res.data))
       .catch((error) => setError(error));
   }, []);
