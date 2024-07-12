@@ -1,40 +1,50 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { useEffect, useState } from "react";
-
-useQuery({
-  queryKey: ["todos", { completed: true }],
-  queryFn: () => axios.get("https://jsonplaceholder.typicode.com/posts"),
-});
-
-interface Post {
-  id: number;
-  title: string;
-  body: string;
-  userId: number;
-}
+import { useState } from "react";
+import usePost from "./hooks/usePost";
 
 const PostList = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [error, setError] = useState("");
+  const [selUser, setSelUser] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const { data, error, isLoading } = usePost({
+    page,
+    pageSize,
+    userId: selUser,
+  });
 
-  useEffect(() => {
-    axios
-      .get("https://jsonplaceholder.typicode.com/posts")
-      .then((res) => setPosts(res.data))
-      .catch((error) => setError(error));
-  }, []);
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>{error.message}</p>;
 
-  if (error) return <p>{error}</p>;
+  const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const userId = event.target.value ? parseInt(event.target.value) : null;
+    setSelUser(userId);
+  };
 
   return (
-    <ul className="list-group">
-      {posts.map((post) => (
-        <li key={post.id} className="list-group-item">
-          {post.title}
-        </li>
-      ))}
-    </ul>
+    <>
+      <select className="form-select mb-3" onChange={handleUserChange}>
+        <option value=""></option>
+        <option value="1">User 1</option>
+        <option value="2">User 2</option>
+        <option value="3">User 3</option>
+      </select>
+      <ul className="list-group">
+        {data?.map((post) => (
+          <li key={post.id} className="list-group-item">
+            {post.title}
+          </li>
+        ))}
+      </ul>
+      <button
+        disabled={page === 1}
+        className="btn btn-primary"
+        onClick={() => setPage(page - 1)}
+      >
+        Previous
+      </button>
+      <button className="btn btn-primary" onClick={() => setPage(page + 1)}>
+        Next
+      </button>
+    </>
   );
 };
 
