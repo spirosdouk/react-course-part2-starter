@@ -1,18 +1,11 @@
 import { useState } from "react";
-import usePost from "./hooks/usePost";
+import usePost, { Post } from "./hooks/usePost";
 
 const PostList = () => {
   const [selUser, setSelUser] = useState<number | null>(null);
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
-  const { data, error, isLoading } = usePost({
-    page,
-    pageSize,
+  const { posts, loading, error, hasMore, setPage } = usePost({
     userId: selUser,
   });
-
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>{error.message}</p>;
 
   const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const userId = event.target.value ? parseInt(event.target.value) : null;
@@ -22,27 +15,26 @@ const PostList = () => {
   return (
     <>
       <select className="form-select mb-3" onChange={handleUserChange}>
-        <option value=""></option>
+        <option value="">Select a user</option>
         <option value="1">User 1</option>
         <option value="2">User 2</option>
         <option value="3">User 3</option>
       </select>
+      {loading && <p>Loading...</p>}
+      {error && <p>{error}</p>}
       <ul className="list-group">
-        {data?.map((post) => (
+        {posts.map((post: Post) => (
           <li key={post.id} className="list-group-item">
             {post.title}
           </li>
         ))}
       </ul>
       <button
-        disabled={page === 1}
         className="btn btn-primary"
-        onClick={() => setPage(page - 1)}
+        onClick={() => setPage((prevPage) => prevPage + 1)}
+        disabled={loading || !hasMore}
       >
-        Previous
-      </button>
-      <button className="btn btn-primary" onClick={() => setPage(page + 1)}>
-        Next
+        {loading ? "Loading more..." : hasMore ? "Load More" : "No more posts"}
       </button>
     </>
   );
