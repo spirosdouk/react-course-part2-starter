@@ -1,8 +1,9 @@
 import { useRef } from "react";
-import useCreateTodo from "./hooks/useCreateTodo";
+import { Todo } from "./hooks/useTodos";
+import { useTodosApi } from "./hooks/useTodos";
 
 const TodoForm = () => {
-  const addTodo = useCreateTodo();
+  const { createTodoMutation } = useTodosApi();
   const ref = useRef<HTMLInputElement>(null);
 
   return (
@@ -11,7 +12,7 @@ const TodoForm = () => {
       onSubmit={(event) => {
         event.preventDefault();
         if (ref.current && ref.current.value)
-          addTodo.mutate({
+          createTodoMutation.mutate({
             id: 0,
             title: ref.current?.value,
             completed: false,

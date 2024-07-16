@@ -1,13 +1,15 @@
-import useTodos, { Todo } from "./hooks/useTodos";
-
+import { useTodosApi } from "./hooks/useTodos";
+import { Todo } from "./hooks/useTodos";
 const TodoList = () => {
-  const { data: todos, error } = useTodos();
+  const { todosQuery } = useTodosApi();
+  const { data: todos, error, isLoading } = todosQuery;
 
-  if (error) return <p>{error.message}</p>;
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>{(error as Error).message}</p>;
 
   return (
     <ul className="list-group">
-      {todos?.map((todo) => (
+      {todos?.map((todo: Todo) => (
         <li key={todo.id} className="list-group-item">
           {todo.title}
         </li>
